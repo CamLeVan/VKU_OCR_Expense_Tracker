@@ -1,10 +1,20 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'app.dart';
 import 'core/database/database_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Ensure local SQLite database initialized before runApp
+
+  // Initialize FFI for Windows / Linux / macOS Desktop SQLite support
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
+
+  // Ensure local SQLite database instance is ready
   await DatabaseHelper.instance.database;
   runApp(const OcrExpenseTrackerApp());
 }
